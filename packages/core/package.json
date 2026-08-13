@@ -1,0 +1,25 @@
+{
+  "name": "@schismata/core",
+  "version": "0.1.0",
+  "description": "Core logic for DFA, NFA, regex and Turing machine construction, transformation and simulation",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
