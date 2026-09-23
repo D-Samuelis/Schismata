@@ -1,7 +1,6 @@
 import { SegmentedControl } from '@mantine/core'
 import { IconPointer, IconCircle, IconArrowRight, IconTrash } from '@tabler/icons-react'
-
-export type EditMode = 'select' | 'add-state' | 'add-transition' | 'delete'
+import type { EditMode } from '../types/automaton'
 
 export function EditorToolbar({ mode, onModeChange }: { mode: EditMode; onModeChange: (m: EditMode) => void }) {
   return (

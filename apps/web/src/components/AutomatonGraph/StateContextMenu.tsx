@@ -10,11 +10,12 @@ interface StateContextMenuProps {
   onClose: () => void
   onSetStart: () => void
   onToggleAccept: () => void
+  onAddTransitionFrom: () => void
   onRename: () => void
   onDelete: () => void
 }
 
-export function StateContextMenu({ id, kind, x, y, onClose, onSetStart, onToggleAccept, onRename, onDelete }: StateContextMenuProps) {
+export function StateContextMenu({ id, kind, x, y, onClose, onSetStart, onToggleAccept, onAddTransitionFrom, onRename, onDelete }: StateContextMenuProps) {
   const ref = useClickOutside(onClose)
   const wrap = (fn: () => void) => () => { fn(); onClose() }
 
@@ -26,7 +27,7 @@ export function StateContextMenu({ id, kind, x, y, onClose, onSetStart, onToggle
           <>
             <UnstyledButton px={8} py={4} onClick={wrap(onSetStart)}><IconPlayerPlay size={14} /> Set as Start State</UnstyledButton>
             <UnstyledButton px={8} py={4} onClick={wrap(onToggleAccept)}><IconTarget size={14} /> Toggle Accepting</UnstyledButton>
-            <UnstyledButton px={8} py={4} onClick={onClose}><IconArrowRight size={14} /> Add Transition from here</UnstyledButton>
+            <UnstyledButton px={8} py={4} onClick={wrap(onAddTransitionFrom)}><IconArrowRight size={14} /> Add Transition from here</UnstyledButton>
             <UnstyledButton px={8} py={4} onClick={wrap(onRename)}><IconEdit size={14} /> Rename</UnstyledButton>
           </>
         )}

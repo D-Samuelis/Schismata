@@ -1,11 +1,16 @@
-import { useEffect, useRef } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import cytoscape, { type Core, type EventObject } from 'cytoscape'
 // @ts-expect-error cytoscape-edgehandles ships no TS declarations
 import edgehandles from 'cytoscape-edgehandles'
-import type { AutomatonState, AutomatonTransition } from '../../hooks/useSimulation'
+import type { AutomatonState, AutomatonTransition, EditMode } from '../../types/automaton'
 
 interface EdgeHandlesInstance {
   start: (node: cytoscape.NodeSingular) => void
+  // NOTE: enable/disable are part of cytoscape-edgehandles' public API but, like
+  // `start` above, aren't in any .d.ts here — double check these against the
+  // installed version if edge-drawing behaves oddly.
+  enable: () => void
+  disable: () => void
 }
 
 cytoscape.use(edgehandles)
@@ -15,27 +20,48 @@ interface AutomatonGraphProps {
   transitions: AutomatonTransition[]
   activeState?: string
   startState?: string
+  editMode: EditMode
   onAddState: (id: string, position: { x: number; y: number }) => void
   onMoveState: (id: string, position: { x: number; y: number }) => void
   onAddTransition: (source: string, target: string) => void
   onToggleAccept: (id: string) => void
+  onDeleteElement: (id: string) => void
   onContextMenu: (id: string, kind: 'node' | 'edge', x: number, y: number) => void
 }
 
-export function AutomatonGraph({
-  states, transitions, activeState, startState,
-  onAddState, onMoveState, onAddTransition, onToggleAccept, onContextMenu,
-}: AutomatonGraphProps) {
+export interface AutomatonGraphHandle {
+  /** Starts an edge drag from an existing node — wires up StateContextMenu's
+   *  "Add Transition from here", which previously called nothing. */
+  startTransitionFrom: (stateId: string) => void
+}
+
+function edgeLabel(t: AutomatonTransition): string {
+  const read = t.reads.join(',')
+  if (!t.writes || !t.moves) return read
+  return `${read} / ${t.writes.join(',')}, ${t.moves.join(',')}`
+}
+
+export const AutomatonGraph = forwardRef<AutomatonGraphHandle, AutomatonGraphProps>(function AutomatonGraph({
+  states, transitions, activeState, startState, editMode,
+  onAddState, onMoveState, onAddTransition, onToggleAccept, onDeleteElement, onContextMenu,
+}, ref) {
   const containerRef = useRef<HTMLDivElement>(null)
   const cyRef = useRef<Core | null>(null)
   const ehRef = useRef<EdgeHandlesInstance | null>(null)
   const stateCounter = useRef(0)
 
-  // stash latest callbacks so the one-time listeners below never close over stale props
-  const cb = useRef({ onAddState, onMoveState, onAddTransition, onToggleAccept, onContextMenu })
+  // stash latest props so the one-time listeners below never close over stale values
+  const cb = useRef({ editMode, onAddState, onMoveState, onAddTransition, onToggleAccept, onDeleteElement, onContextMenu })
   useEffect(() => {
-    cb.current = { onAddState, onMoveState, onAddTransition, onToggleAccept, onContextMenu }
+    cb.current = { editMode, onAddState, onMoveState, onAddTransition, onToggleAccept, onDeleteElement, onContextMenu }
   })
+
+  useImperativeHandle(ref, () => ({
+    startTransitionFrom: (stateId: string) => {
+      const node = cyRef.current?.getElementById(stateId)
+      if (node && node.length > 0) ehRef.current?.start(node)
+    },
+  }))
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -53,10 +79,20 @@ export function AutomatonGraph({
     cyRef.current = cy
     ehRef.current = (cy as Core & { edgehandles: (o: object) => EdgeHandlesInstance }).edgehandles({})
 
+    // Background tap only adds a state in 'add-state' mode — previously this fired
+    // unconditionally, so a plain click-to-pan in 'select' mode silently created states.
     cy.on('tap', (evt) => {
       if (evt.target !== cy) return
+      if (cb.current.editMode !== 'add-state') return
       const id = `q${stateCounter.current++}`
       cb.current.onAddState(id, evt.position)
+    })
+
+    // 'delete' mode: a single tap on a state/transition removes it directly, no
+    // context menu round-trip.
+    cy.on('tap', 'node, edge', (evt) => {
+      if (cb.current.editMode !== 'delete') return
+      cb.current.onDeleteElement(evt.target.id())
     })
 
     cy.on('dbltap', 'node', (evt) => cb.current.onToggleAccept(evt.target.id()))
@@ -81,6 +117,14 @@ export function AutomatonGraph({
     return () => cy.destroy()
   }, [])
 
+  // hover-handle edge drawing only live while the toolbar is in 'add-transition' mode
+  useEffect(() => {
+    const eh = ehRef.current
+    if (!eh) return
+    if (editMode === 'add-transition') eh.enable()
+    else eh.disable()
+  }, [editMode])
+
   // states/transitions are the single source of truth; re-sync on every change
   useEffect(() => {
     const cy = cyRef.current
@@ -91,7 +135,7 @@ export function AutomatonGraph({
       position: { x: s.x, y: s.y },
       classes: [s.accept ? 'accept' : '', s.id === startState ? 'start' : ''].filter(Boolean).join(' '),
     })))
-    cy.add(transitions.map((t) => ({ data: { id: t.id, source: t.source, target: t.target, label: t.symbol } })))
+    cy.add(transitions.map((t) => ({ data: { id: t.id, source: t.source, target: t.target, label: edgeLabel(t) } })))
   }, [states, transitions, startState])
 
   useEffect(() => {
@@ -102,4 +146,4 @@ export function AutomatonGraph({
   }, [activeState])
 
   return <div ref={containerRef} style={{ height: '100%', minHeight: 500, width: '100%', border: '1px solid var(--mantine-color-gray-3)' }} />
-}
+})
