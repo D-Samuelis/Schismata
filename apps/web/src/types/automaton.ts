@@ -20,7 +20,7 @@ export interface AutomatonState {
  * - Turing machines (any tape count): `reads`, `writes` and `moves` all have
  *   one entry per tape, e.g. for 2 tapes: δ(q, a₁, a₂) = (q', b₁, b₂, R, L).
  *
- * Rendering/editing code should branch on `isTM(config)`, not on whether
+ * Rendering/editing code should branch on `isTM(modeId)`, not on whether
  * `writes`/`moves` happen to be present, so a mode's shape is always
  * consistent.
  */
@@ -33,22 +33,25 @@ export interface AutomatonTransition {
   moves?: TapeDirection[]
 }
 
-/** Which editing surface Workspace mounts for a mode. */
-export type EditorKind = 'graph' | 'text'
-
 /** Interaction mode for the graph canvas toolbar (independent of automaton mode). */
 export type EditMode = 'select' | 'add-state' | 'add-transition' | 'delete'
 
 export interface ModeConfig {
   label: string
   icon: ComponentType<{ size?: number }>
-  /** 0 = no tape (DFA/NFA/Regex). >=1 = Turing machine variant with that many tapes. */
-  tapeCount: number
-  editorKind: EditorKind
 }
 
-export type ModeId = 'dfa' | 'nfa' | 'regex' | 'tm' | 'tm-arithmetic'
+/**
+ * Every mode shares one graph-editing surface now: DFA/NFA are 0-tape automata,
+ * TM is any tape count (1 for the classic construction, more for e.g. the
+ * arithmetic constructions) — tape count is a runtime choice within the TM
+ * page (see useSimulation's setTapeCount), not a separate mode per arity.
+ * Regex isn't a mode at all; it's a generator panel available from the NFA
+ * page (see RegexEditor + Workspace) that produces an NFA via Thompson's
+ * construction and hands the result to the same graph editor.
+ */
+export type ModeId = 'dfa' | 'nfa' | 'tm'
 
-export function isTM(config: ModeConfig): boolean {
-  return config.tapeCount > 0
+export function isTM(modeId: ModeId): boolean {
+  return modeId === 'tm'
 }
