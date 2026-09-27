@@ -1,3 +1,5 @@
+// apps/web/src/components/AutomatonGraph/AutomatonGraph.tsx
+
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import cytoscape, { type Core, type EventObject } from "cytoscape";
 // @ts-expect-error cytoscape-edgehandles ships no TS declarations
@@ -10,9 +12,6 @@ import type {
 
 interface EdgeHandlesInstance {
   start: (node: cytoscape.NodeSingular) => void;
-  // NOTE: enable/disable are part of cytoscape-edgehandles' public API but, like
-  // `start` above, aren't in any .d.ts here — double check these against the
-  // installed version if edge-drawing behaves oddly.
   enable: () => void;
   disable: () => void;
 }
@@ -74,7 +73,6 @@ export const AutomatonGraph = forwardRef<
   const ehRef = useRef<EdgeHandlesInstance | null>(null);
   const stateCounter = useRef(0);
 
-  // stash latest props so the one-time listeners below never close over stale values
   const cb = useRef({
     editMode,
     onAddState,
@@ -108,6 +106,7 @@ export const AutomatonGraph = forwardRef<
     const cy = cytoscape({
       container: containerRef.current,
       elements: [],
+      layout: { name: "preset" },
       style: [
         {
           selector: "node",
@@ -136,6 +135,9 @@ export const AutomatonGraph = forwardRef<
     ehRef.current = (
       cy as Core & { edgehandles: (o: object) => EdgeHandlesInstance }
     ).edgehandles({});
+
+    const resizeObserver = new ResizeObserver(() => cy.resize());
+    resizeObserver.observe(containerRef.current);
 
     // Background tap only adds a state in 'add-state' mode — previously this fired
     // unconditionally, so a plain click-to-pan in 'select' mode silently created states.
@@ -173,10 +175,6 @@ export const AutomatonGraph = forwardRef<
       cb.current.onMoveState(evt.target.id(), { x: p.x, y: p.y });
     });
 
-    // cytoscape-edgehandles calls this with (event, sourceNode, targetNode, addedEdge) —
-    // NOT with the edge as evt.target (evt.target here is just the cy core). Reading
-    // evt.target.source() was throwing on every completed drag, which is why edge
-    // creation silently did nothing.
     cy.on(
       "ehcomplete",
       (
@@ -190,7 +188,10 @@ export const AutomatonGraph = forwardRef<
       },
     );
 
-    return () => cy.destroy();
+    return () => {
+      resizeObserver.disconnect();
+      cy.destroy();
+    };
   }, []);
 
   // hover-handle edge drawing only live while the toolbar is in 'add-transition' mode

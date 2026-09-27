@@ -1,3 +1,5 @@
+// apps/web/src/components/EditorToolbar/EditorToolbar.tsx
+
 import { SegmentedControl } from "@mantine/core";
 import {
   IconPointer,

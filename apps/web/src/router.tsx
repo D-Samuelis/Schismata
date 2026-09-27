@@ -1,3 +1,5 @@
+// apps/web/src/router.tsx
+
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import Workspace from './pages/Workspace'
 import AppLayout from './layout/AppLayout'

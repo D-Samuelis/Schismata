@@ -1,3 +1,5 @@
+// apps/web/src/components/SimulationControls/SimulationControls.tsx
+
 import { Group, ActionIcon, Slider, Text, TextInput } from "@mantine/core";
 import {
   IconPlayerPlay,

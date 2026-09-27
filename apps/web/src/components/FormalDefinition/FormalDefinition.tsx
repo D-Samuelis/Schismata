@@ -1,3 +1,5 @@
+// apps/web/src/components/FormalDefinition/FormalDefinition.tsx
+
 import { Paper, Stack, Text, Title } from "@mantine/core";
 import type {
   AutomatonState,
@@ -29,10 +31,6 @@ export function FormalDefinition({
       .join(", ") || "∅";
   const tm = isTM(modeId);
 
-  // Simplification: Σ is every read symbol across every tape. For a TM whose
-  // input really only lives on tape 1, you may want to narrow this to
-  // transitions.map(t => t.reads[0]) instead — left broad for now since the
-  // arithmetic TM's tape layout isn't locked in yet.
   const inputSymbols = new Set<string>();
   transitions.forEach((t) =>
     t.reads.forEach((r) => r !== BLANK_SYMBOL && inputSymbols.add(r)),

@@ -1,3 +1,5 @@
+// apps/web/src/components/AutomatonGraph/StateContextMenu.tsx
+
 import { useLayoutEffect, useState, type ReactNode } from "react";
 import { Paper, Stack, UnstyledButton, Text, Divider } from "@mantine/core";
 import { useClickOutside } from "@mantine/hooks";

@@ -1,3 +1,5 @@
+// apps/web/src/components/RegexEditor/RegexEditor.tsx
+
 import { useState } from "react";
 import {
   Paper,
@@ -13,8 +15,6 @@ import { IconArrowRight } from "@tabler/icons-react";
 interface RegexEditorProps {
   pattern: string;
   onPatternChange: (v: string) => void;
-  /** Compiles `pattern` via Thompson's construction and loads the result into
-   *  the NFA graph below (see Workspace's regex panel + useSimulation.loadGraph). */
   onGenerate: () => void;
 }
 
@@ -38,8 +38,6 @@ export function RegexEditor({
             value={pattern}
             onChange={(e) => {
               onPatternChange(e.currentTarget.value);
-              // TODO: validate against @schismata/core's regex grammar once parsing lands;
-              // clearing the error optimistically for now.
               setError(null);
             }}
             error={error}
@@ -54,9 +52,6 @@ export function RegexEditor({
           </Button>
         </Group>
         <Text size="xs" c="dimmed">
-          {/* TODO: wire up @schismata/core once regex → NFA (Thompson's construction) is
-              implemented; onGenerate is a no-op stub until then. Generating replaces the
-              graph below, which you can keep editing like any other NFA. */}
           Builds the equivalent NFA via Thompson&apos;s construction and loads
           it into the graph below, where you can keep editing it directly.
         </Text>

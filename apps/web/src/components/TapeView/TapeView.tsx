@@ -1,3 +1,5 @@
+// apps/web/src/components/TapeView/TapeView.tsx
+
 import { Group, Paper, Stack, Text, TextInput } from "@mantine/core";
 import { BLANK_SYMBOL } from "../../types/automaton";
 
@@ -6,7 +8,6 @@ const WINDOW = 21;
 interface TapeViewProps {
   tapes: string[][];
   heads: number[];
-  /** Allow editing the initial tape content — only meaningful while status === 'idle'. */
   editable?: boolean;
   onEditTape?: (tapeIndex: number, value: string) => void;
 }
@@ -18,8 +19,6 @@ function cellAt(tape: string[], index: number): string {
 const CELL_BASE =
   "inline-flex shrink-0 items-center justify-center w-7 h-7 font-mono border";
 const CELL_INACTIVE = "border-gray-300 dark:border-gray-600";
-// Accent kept as an arbitrary hex to match the app's brand purple (see
-// AutomatonGraph's cytoscape 'active' style) rather than the closest Tailwind swatch.
 const CELL_ACTIVE =
   "border-2 border-[#aa3bff] bg-[#aa3bff]/10 dark:border-[#c084fc] dark:bg-[#c084fc]/15";
 

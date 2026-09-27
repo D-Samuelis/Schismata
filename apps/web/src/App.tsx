@@ -1,3 +1,5 @@
+// apps/web/src/App.tsx
+
 import { Suspense } from 'react'
 import '@mantine/core/styles.css'
 import { MantineProvider } from '@mantine/core'

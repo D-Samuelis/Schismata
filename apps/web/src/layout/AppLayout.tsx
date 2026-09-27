@@ -1,3 +1,5 @@
+// apps/web/src/layout/AppLayout.tsx
+
 import { AppShell, Tabs, Title, Group } from "@mantine/core";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { AUTOMATON_MODES } from "../config/automatonModes";
@@ -7,12 +9,7 @@ export default function AppLayout() {
   const navigate = useNavigate();
 
   return (
-    <AppShell
-      header={{ height: 56 }}
-      aside={{ width: 340, breakpoint: "sm" }}
-      footer={{ height: 64 }}
-      padding="md"
-    >
+    <AppShell header={{ height: 56 }} footer={{ height: 64 }} padding="md">
       <AppShell.Header px="md">
         <Group h="100%" justify="space-between">
           <Title order={4}>Schismata</Title>
@@ -31,15 +28,19 @@ export default function AppLayout() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Aside p="md">
-        <div id="aside-portal" />
-      </AppShell.Aside>
-
       <AppShell.Footer px="md">
         <div id="footer-portal" />
       </AppShell.Footer>
 
-      <AppShell.Main>
+      <AppShell.Main
+        style={{
+          height:
+            "calc(100vh - var(--app-shell-header-height, 0px) - var(--app-shell-footer-height, 0px))",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
         <Outlet key={mode} />
       </AppShell.Main>
     </AppShell>

@@ -1,3 +1,5 @@
+// apps/web/src/components/TransitionTable/TransitionTable.tsx
+
 import {
   Paper,
   Stack,
@@ -55,8 +57,6 @@ function withMoveAt(
   return next;
 }
 
-/** One symbol slot, sized for its content instead of a generic full-width box —
- *  these sit inline with the surrounding formal notation, not as separate fields. */
 function SymbolInput({
   value,
   onCommit,
@@ -76,10 +76,6 @@ function SymbolInput({
   );
 }
 
-/** Re-points a transition's source/target. A dropdown of existing states rather
- *  than free text, since a transition endpoint has to name a real state — typing
- *  an arbitrary id here would leave it dangling until you separately created a
- *  matching state. */
 function StateSelect({
   value,
   states,
