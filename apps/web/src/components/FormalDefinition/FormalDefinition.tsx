@@ -66,7 +66,6 @@ export function FormalDefinition({
     );
   }
 
-  // Tape alphabet Γ ⊇ Σ, plus every written symbol, plus the blank.
   const tapeSymbols = new Set(inputSymbols);
   transitions.forEach((t) => t.writes?.forEach((w) => tapeSymbols.add(w)));
   tapeSymbols.add(BLANK_SYMBOL);

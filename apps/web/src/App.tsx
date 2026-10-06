@@ -2,17 +2,17 @@
 
 import { Suspense } from 'react'
 import '@mantine/core/styles.css'
-import { MantineProvider } from '@mantine/core'
 import { RouterProvider } from 'react-router-dom'
 import { router } from './router'
+import { ThemeProvider } from './theme/ThemeProvider'
 
 function App() {
   return (
-    <MantineProvider>
+    <ThemeProvider>
       <Suspense fallback={null}>
         <RouterProvider router={router} />
       </Suspense>
-    </MantineProvider>
+    </ThemeProvider>
   )
 }
 

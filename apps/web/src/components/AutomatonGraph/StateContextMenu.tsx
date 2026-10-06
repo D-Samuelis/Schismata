@@ -70,9 +70,6 @@ export function StateContextMenu({
     onClose();
   };
 
-  // Right-click position is the raw cursor coordinate, which can place the menu
-  // partly off-screen near the right/bottom edge. Clamp once we know the
-  // rendered height (width is fixed via MENU_WIDTH).
   const [pos, setPos] = useState({ top: y, left: x });
   useLayoutEffect(() => {
     const el = ref.current;
@@ -81,8 +78,6 @@ export function StateContextMenu({
       left: Math.min(x, window.innerWidth - MENU_WIDTH - 8),
       top: Math.min(y, window.innerHeight - height - 8),
     });
-    // Only recompute when a new menu opens at a new position, not on every render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [x, y]);
 
   return (

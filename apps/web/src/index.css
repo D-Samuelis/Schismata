@@ -2,21 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------ *
+ * Colour tokens (--sc-background, --sc-accent, …) are written onto <html>
+ * by applyTheme() from theme/themes.ts. Only *derived* tints live here.
+ * ------------------------------------------------------------------ */
 :root {
-  color-scheme: light dark;
+  --sc-hover: color-mix(in srgb, var(--sc-foreground) 8%, transparent);
+  --sc-hover-strong: color-mix(in srgb, var(--sc-foreground) 14%, transparent);
+  --sc-accent-soft: color-mix(in srgb, var(--sc-accent) 22%, transparent);
+  --sc-grid-dot: color-mix(in srgb, var(--sc-foreground) 16%, transparent);
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
   margin: 0;
+  overflow: hidden;
+  background: var(--sc-background);
+  color: var(--sc-foreground);
+  font-size: 13px;
 }
 
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100svh;
   width: 100%;
 }
 
+/* Scrollbars, VS Code style */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--sc-foreground) 25%, transparent) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--sc-foreground) 22%, transparent);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--sc-foreground) 38%, transparent);
+}
+
+:focus-visible {
+  outline: 1px solid var(--sc-accent);
+  outline-offset: -1px;
+}
+
+/* ------------------------------------------------------------------ *
+ * dockview — piggybacks on the built-in dark theme class (as before) and
+ * overrides every variable from the active theme.
+ * ------------------------------------------------------------------ */
 .workspace-dockview {
   flex: 1 1 auto;
   min-height: 0;
@@ -29,35 +73,99 @@ body {
 }
 
 .dockview-theme-dark.dockview-theme-schismata {
-  color-scheme: light;
-  --dv-group-view-background-color: #ffffff;
-  --dv-tabs-and-actions-container-background-color: #f1f3f5;
-  --dv-activegroup-visiblepanel-tab-background-color: #ffffff;
-  --dv-activegroup-hiddenpanel-tab-background-color: #f1f3f5;
-  --dv-inactivegroup-visiblepanel-tab-background-color: #f1f3f5;
-  --dv-inactivegroup-hiddenpanel-tab-background-color: #f1f3f5;
-  --dv-tab-divider-color: #f1f3f5;
-  --dv-activegroup-visiblepanel-tab-color: #1a1b1e;
-  --dv-activegroup-hiddenpanel-tab-color: #495057;
-  --dv-inactivegroup-visiblepanel-tab-color: #495057;
-  --dv-inactivegroup-hiddenpanel-tab-color: #868e96;
-  --dv-separator-border: #dee2e6;
-  --dv-paneview-header-border-color: rgba(0, 0, 0, 0.2);
+  --dv-background-color: var(--sc-activity-bar);
+  --dv-group-view-background-color: var(--sc-background);
+  --dv-tabs-and-actions-container-background-color: var(--sc-surface);
+  --dv-tabs-and-actions-container-height: 35px;
+  --dv-tabs-and-actions-container-font-size: 13px;
+  --dv-activegroup-visiblepanel-tab-background-color: var(--sc-background);
+  --dv-activegroup-hiddenpanel-tab-background-color: var(--sc-surface);
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--sc-background);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--sc-surface);
+  --dv-tab-divider-color: var(--sc-border);
+  --dv-activegroup-visiblepanel-tab-color: var(--sc-foreground);
+  --dv-activegroup-hiddenpanel-tab-color: var(--sc-muted-foreground);
+  --dv-inactivegroup-visiblepanel-tab-color: var(--sc-muted-foreground);
+  --dv-inactivegroup-hiddenpanel-tab-color: var(--sc-muted-foreground);
+  --dv-separator-border: var(--sc-border);
+  --dv-paneview-header-border-color: var(--sc-border);
+  --dv-icon-hover-background-color: var(--sc-hover-strong);
+  --dv-active-sash-color: var(--sc-accent);
+  --dv-drag-over-background-color: var(--sc-accent-soft);
+  --dv-drag-over-border-color: var(--sc-accent);
+  --dv-tabs-container-scrollbar-color: var(--sc-hover-strong);
 }
 
-[data-mantine-color-scheme="dark"] .dockview-theme-dark.dockview-theme-schismata {
-  color-scheme: dark;
-  --dv-group-view-background-color: #1a1b1e;
-  --dv-tabs-and-actions-container-background-color: #25262b;
-  --dv-activegroup-visiblepanel-tab-background-color: #1a1b1e;
-  --dv-activegroup-hiddenpanel-tab-background-color: #2c2e33;
-  --dv-inactivegroup-visiblepanel-tab-background-color: #25262b;
-  --dv-inactivegroup-hiddenpanel-tab-background-color: #2c2e33;
-  --dv-tab-divider-color: #25262b;
-  --dv-activegroup-visiblepanel-tab-color: #ffffff;
-  --dv-activegroup-hiddenpanel-tab-color: #969696;
-  --dv-inactivegroup-visiblepanel-tab-color: #8f8f8f;
-  --dv-inactivegroup-hiddenpanel-tab-color: #626262;
-  --dv-separator-border: #2c2e33;
-  --dv-paneview-header-border-color: rgba(204, 204, 204, 0.2);
+/* VS Code's accent line on top of the active editor tab */
+.dockview-theme-schismata .dv-tab.dv-active-tab {
+  box-shadow: inset 0 1px 0 var(--sc-accent);
+}
+
+/* Graph canvas: faint dot grid so the empty canvas still reads as a canvas */
+.sc-graph {
+  background-color: var(--sc-background);
+  background-image: radial-gradient(var(--sc-grid-dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Mantine → theme bridge for the pieces Mantine styles per colour-scheme
+ * (inputs, popovers, menus, tooltips, cards). `html[data-mantine-color-scheme]`
+ * is only there to out-rank Mantine's own `[data-mantine-color-scheme] .m_xxx`.
+ * ------------------------------------------------------------------ */
+html[data-mantine-color-scheme] .mantine-Input-input,
+html[data-mantine-color-scheme] .mantine-TextInput-input,
+html[data-mantine-color-scheme] .mantine-Select-input,
+html[data-mantine-color-scheme] .mantine-NumberInput-input {
+  background-color: var(--sc-background);
+  color: var(--sc-foreground);
+  border-color: var(--sc-border);
+}
+
+html[data-mantine-color-scheme] .mantine-Input-input:focus,
+html[data-mantine-color-scheme] .mantine-TextInput-input:focus,
+html[data-mantine-color-scheme] .mantine-Select-input:focus,
+html[data-mantine-color-scheme] .mantine-NumberInput-input:focus {
+  border-color: var(--sc-accent);
+}
+
+html[data-mantine-color-scheme] .mantine-Popover-dropdown,
+html[data-mantine-color-scheme] .mantine-Menu-dropdown,
+html[data-mantine-color-scheme] .mantine-Paper-root {
+  background-color: var(--sc-surface);
+  color: var(--sc-foreground);
+  border-color: var(--sc-border);
+}
+
+html[data-mantine-color-scheme] .mantine-Menu-item,
+html[data-mantine-color-scheme] .mantine-Select-option {
+  color: var(--sc-foreground);
+}
+
+html[data-mantine-color-scheme] .mantine-Menu-item:hover,
+html[data-mantine-color-scheme] .mantine-Menu-item[data-hovered],
+html[data-mantine-color-scheme] .mantine-Select-option:hover,
+html[data-mantine-color-scheme] .mantine-Select-option[data-combobox-selected] {
+  background-color: var(--sc-accent);
+  color: var(--sc-accent-foreground);
+}
+
+html[data-mantine-color-scheme] .mantine-Menu-label {
+  color: var(--sc-muted-foreground);
+}
+
+html[data-mantine-color-scheme] .mantine-Tooltip-tooltip {
+  background-color: var(--sc-surface);
+  color: var(--sc-foreground);
+  border: 1px solid var(--sc-border);
+}
+
+html[data-mantine-color-scheme] .mantine-Modal-content,
+html[data-mantine-color-scheme] .mantine-Modal-header {
+  background-color: var(--sc-surface);
+  color: var(--sc-foreground);
+}
+
+html[data-mantine-color-scheme] .mantine-Slider-root {
+  --slider-track-bg: var(--sc-hover-strong);
 }

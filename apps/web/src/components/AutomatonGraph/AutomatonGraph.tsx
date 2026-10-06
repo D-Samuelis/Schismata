@@ -4,6 +4,8 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import cytoscape, { type Core, type EventObject } from "cytoscape";
 // @ts-expect-error cytoscape-edgehandles ships no TS declarations
 import edgehandles from "cytoscape-edgehandles";
+import { useActiveTheme } from "../../theme/themeStore";
+import { buildGraphStyle } from "./graphStyle";
 import type {
   AutomatonState,
   AutomatonTransition,
@@ -73,6 +75,11 @@ export const AutomatonGraph = forwardRef<
   const ehRef = useRef<EdgeHandlesInstance | null>(null);
   const stateCounter = useRef(0);
 
+  // Colours come from the active theme (cytoscape can't read CSS variables).
+  const { colors } = useActiveTheme();
+  const colorsRef = useRef(colors);
+  colorsRef.current = colors;
+
   const cb = useRef({
     editMode,
     onAddState,
@@ -107,29 +114,7 @@ export const AutomatonGraph = forwardRef<
       container: containerRef.current,
       elements: [],
       layout: { name: "preset" },
-      style: [
-        {
-          selector: "node",
-          style: { label: "data(id)", "background-color": "#aa3bff" },
-        },
-        {
-          selector: "node.accept",
-          style: { "border-width": 3, "border-color": "#08060d" },
-        },
-        {
-          selector: "node.start",
-          style: { "border-width": 3, "border-color": "#2ecc71" },
-        },
-        { selector: "node.active", style: { "background-color": "#08060d" } },
-        {
-          selector: "edge",
-          style: {
-            label: "data(label)",
-            "curve-style": "bezier",
-            "target-arrow-shape": "triangle",
-          },
-        },
-      ],
+      style: buildGraphStyle(colorsRef.current),
     });
     cyRef.current = cy;
     ehRef.current = (
@@ -194,6 +179,11 @@ export const AutomatonGraph = forwardRef<
     };
   }, []);
 
+  // re-skin the graph when the theme changes (element classes are preserved)
+  useEffect(() => {
+    cyRef.current?.style(buildGraphStyle(colors));
+  }, [colors]);
+
   // hover-handle edge drawing only live while the toolbar is in 'add-transition' mode
   useEffect(() => {
     const eh = ehRef.current;
@@ -235,10 +225,5 @@ export const AutomatonGraph = forwardRef<
     if (activeState) cy.getElementById(activeState).addClass("active");
   }, [activeState]);
 
-  return (
-    <div
-      ref={containerRef}
-      className="h-full min-h-[500px] w-full border border-gray-300 dark:border-gray-700"
-    />
-  );
+  return <div ref={containerRef} className="sc-graph absolute inset-0" />;
 });
