@@ -7,7 +7,7 @@
  * The buildMenus function constructs the complete menu structure based on the defined commands and themes.
  */
 
-import { AUTOMATON_MODES } from "./automatonModes";
+// import { AUTOMATON_MODES } from "./automatonModes";
 import { THEMES } from "../theme/themes";
 
 export type MenuItem =
@@ -56,6 +56,7 @@ export function buildMenus(): MenuDef[] {
         cmd("view.panel.tape"),
         cmd("view.panel.formalDefinition"),
         cmd("view.panel.transitionTable"),
+        cmd("view.panel.states"),
         SEP,
         cmd("view.regex"),
         SEP,

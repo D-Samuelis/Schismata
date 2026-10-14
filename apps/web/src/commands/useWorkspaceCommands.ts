@@ -28,6 +28,7 @@ const PANEL_IDS: PanelId[] = [
   "tape",
   "formalDefinition",
   "transitionTable",
+  "states",
 ];
 
 function downloadJson(filename: string, data: unknown) {

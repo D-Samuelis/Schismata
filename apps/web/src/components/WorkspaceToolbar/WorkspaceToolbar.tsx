@@ -1,13 +1,9 @@
 // apps/web/src/components/WorkspaceToolbar/WorkspaceToolbar.tsx
+//
+// Slim bar under the title bar. Panel toggling lives in the View menu
+// (see config/menus.ts), so this only holds undo/redo and mode-specific tools.
 
-import {
-  Group,
-  ActionIcon,
-  NumberInput,
-  Tooltip,
-  Chip,
-  Button,
-} from "@mantine/core";
+import { Group, NumberInput, Tooltip, Button, Text } from "@mantine/core";
 import {
   IconMathFunction,
   IconArrowRight,
@@ -15,29 +11,11 @@ import {
   IconArrowForwardUp,
 } from "@tabler/icons-react";
 import { MAX_TAPE_COUNT } from "../../config/automatonModes";
-import type { PanelId } from "../../config/workspaceLayout";
 import type { ModeId } from "../../types/automaton";
-
-interface PanelOption {
-  value: PanelId;
-  label: string;
-}
-
-function panelOptionsFor(modeId: ModeId): PanelOption[] {
-  const shared: PanelOption[] = [
-    { value: "graph", label: "Graph" },
-    { value: "formalDefinition", label: "Formal Definition" },
-    { value: "transitionTable", label: "Transitions" },
-  ];
-  return modeId === "tm"
-    ? [shared[0], { value: "tape", label: "Tape" }, shared[1], shared[2]]
-    : shared;
-}
+import { ToolButton } from "../ui/ToolButton";
 
 interface WorkspaceToolbarProps {
   modeId: ModeId;
-  openPanels: PanelId[];
-  onTogglePanel: (id: PanelId, shouldBeOpen: boolean) => void;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
@@ -51,8 +29,6 @@ interface WorkspaceToolbarProps {
 
 export function WorkspaceToolbar({
   modeId,
-  openPanels,
-  onTogglePanel,
   canUndo,
   canRedo,
   onUndo,
@@ -63,69 +39,39 @@ export function WorkspaceToolbar({
   tapeCount,
   onTapeCountChange,
 }: WorkspaceToolbarProps) {
-  const panelOptions = panelOptionsFor(modeId);
-
   return (
-    <Group gap="xs" wrap="wrap" justify="space-between">
-      <Group gap="xs">
-        {/* Can be removed - technicaly moved to the top toolbar
-        <Chip.Group
-          multiple
-          value={openPanels}
-          onChange={(v) => {
-            const next = v as PanelId[];
-            panelOptions.forEach((o) =>
-              onTogglePanel(o.value, next.includes(o.value)),
-            );
-          }}
-        >
-          <Group gap={6}>
-            {panelOptions.map((o) => (
-              <Chip key={o.value} value={o.value} size="xs">
-                {o.label}
-              </Chip>
-            ))}
-          </Group>
-        </Chip.Group> 
-        */}
-        <Tooltip label="Undo">
-          <ActionIcon
-            variant="default"
-            size="lg"
-            disabled={!canUndo}
-            onClick={onUndo}
-          >
-            <IconArrowBackUp size={18} />
-          </ActionIcon>
-        </Tooltip>
-        <Tooltip label="Redo">
-          <ActionIcon
-            variant="default"
-            size="lg"
-            disabled={!canRedo}
-            onClick={onRedo}
-          >
-            <IconArrowForwardUp size={18} />
-          </ActionIcon>
-        </Tooltip>
-      </Group>
+    <div className="flex h-9 shrink-0 items-center justify-between gap-2 border-b border-[var(--sc-border)] bg-[var(--sc-surface)] px-2">
+      <div className="flex items-center gap-1">
+        <ToolButton
+          label="Undo"
+          commandId="edit.undo"
+          icon={<IconArrowBackUp size={16} />}
+          disabled={!canUndo}
+          onClick={onUndo}
+        />
+        <ToolButton
+          label="Redo"
+          commandId="edit.redo"
+          icon={<IconArrowForwardUp size={16} />}
+          disabled={!canRedo}
+          onClick={onRedo}
+        />
+      </div>
 
       <Group gap="xs">
         {modeId === "nfa" && (
           <>
-            <Tooltip label="Generate from regular expression">
-              <ActionIcon
-                variant={regexOpen ? "filled" : "default"}
-                size="lg"
-                onClick={onToggleRegex}
-              >
-                <IconMathFunction size={18} />
-              </ActionIcon>
-            </Tooltip>
+            <ToolButton
+              label="Generate from regular expression"
+              icon={<IconMathFunction size={16} />}
+              active={regexOpen}
+              onClick={onToggleRegex}
+            />
             <Tooltip label="Needs @schismata/core's subset construction — not implemented yet">
               <Button
                 variant="light"
-                rightSection={<IconArrowRight size={16} />}
+                size="compact-sm"
+                rightSection={<IconArrowRight size={14} />}
                 disabled
                 onClick={onConvertToDfa}
               >
@@ -135,16 +81,22 @@ export function WorkspaceToolbar({
           </>
         )}
         {modeId === "tm" && (
-          <NumberInput
-            label="Tapes"
-            value={tapeCount}
-            onChange={(v) => onTapeCountChange(typeof v === "number" ? v : 1)}
-            min={1}
-            max={MAX_TAPE_COUNT}
-            w={90}
-          />
+          <Group gap={6} wrap="nowrap">
+            <Text size="xs" c="dimmed">
+              Tapes
+            </Text>
+            <NumberInput
+              size="xs"
+              aria-label="Number of tapes"
+              value={tapeCount}
+              onChange={(v) => onTapeCountChange(typeof v === "number" ? v : 1)}
+              min={1}
+              max={MAX_TAPE_COUNT}
+              w={64}
+            />
+          </Group>
         )}
       </Group>
-    </Group>
+    </div>
   );
 }

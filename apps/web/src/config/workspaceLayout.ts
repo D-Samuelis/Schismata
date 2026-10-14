@@ -3,13 +3,19 @@
 import type { DockviewApi } from "dockview-react";
 import type { ModeId } from "../types/automaton";
 
-export type PanelId = "graph" | "tape" | "formalDefinition" | "transitionTable";
+export type PanelId =
+  | "graph"
+  | "tape"
+  | "formalDefinition"
+  | "transitionTable"
+  | "states";
 
 export const PANEL_TITLES: Record<PanelId, string> = {
   graph: "Graph",
   tape: "Tape",
   formalDefinition: "Formal Definition",
   transitionTable: "Transitions",
+  states: "States",
 };
 
 interface DefaultPanelSpec {
@@ -22,28 +28,24 @@ interface DefaultPanelSpec {
 
 // Default panel layouts for each mode. The "graph" panel is always the root, and other panels are positioned relative to it or to each other.
 export const DEFAULT_LAYOUTS: Record<ModeId, DefaultPanelSpec[]> = {
-  tm: [
-    { id: "graph", initialWidth: 900 },
-    { id: "tape", relativeTo: "graph", direction: "below", initialHeight: 320 },
-    { id: "formalDefinition", relativeTo: "graph", direction: "right" },
-    {
-      id: "transitionTable",
-      relativeTo: "formalDefinition",
-      direction: "right",
-    },
-  ],
   dfa: [
-    { id: "graph", initialWidth: 900 },
+    // Left half: no initialWidth, so the first split below shares the space evenly.
+    { id: "graph" },
+    // Right column, top.
     { id: "formalDefinition", relativeTo: "graph", direction: "right" },
+    // Right column, bottom: splits the right column vertically.
     {
       id: "transitionTable",
       relativeTo: "formalDefinition",
       direction: "below",
       initialHeight: 320,
     },
+    // Splits the bottom cell horizontally: transitions | states, half each.
+    { id: "states", relativeTo: "transitionTable", direction: "right" },
   ],
+
   nfa: [
-    { id: "graph", initialWidth: 900 },
+    { id: "graph" },
     { id: "formalDefinition", relativeTo: "graph", direction: "right" },
     {
       id: "transitionTable",
@@ -51,6 +53,22 @@ export const DEFAULT_LAYOUTS: Record<ModeId, DefaultPanelSpec[]> = {
       direction: "below",
       initialHeight: 320,
     },
+    { id: "states", relativeTo: "transitionTable", direction: "right" },
+  ],
+
+  tm: [
+    { id: "graph" },
+    { id: "formalDefinition", relativeTo: "graph", direction: "right" },
+    {
+      id: "transitionTable",
+      relativeTo: "formalDefinition",
+      direction: "below",
+      initialHeight: 320,
+    },
+    { id: "states", relativeTo: "transitionTable", direction: "right" },
+    // Added last on purpose: it splits only the graph's cell, so the right
+    // column keeps its full height and the tape sits under the graph.
+    { id: "tape", relativeTo: "graph", direction: "below", initialHeight: 320 },
   ],
 };
 

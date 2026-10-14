@@ -54,7 +54,6 @@ export default function Workspace() {
   const nfa = useNfaStore(modeId === "nfa" ? activeSelector : inertSelector);
   const tm = useTmStore(modeId === "tm" ? activeSelector : inertSelector);
   const sim = modeId === "dfa" ? dfa : modeId === "nfa" ? nfa : tm;
-  console.log(sim);
   const activeStore =
     modeId === "dfa"
       ? useDfaStore
@@ -172,8 +171,6 @@ export default function Workspace() {
       <div className="flex h-full min-h-0 flex-col">
         <WorkspaceToolbar
           modeId={modeId}
-          openPanels={openPanels}
-          onTogglePanel={togglePanel}
           canUndo={canUndo}
           canRedo={canRedo}
           onUndo={undo}

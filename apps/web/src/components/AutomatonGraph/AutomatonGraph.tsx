@@ -6,6 +6,7 @@ import cytoscape, { type Core, type EventObject } from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import { useActiveTheme } from "../../theme/themeStore";
 import { buildGraphStyle } from "./graphStyle";
+import { nextStateId } from "../../utils/stateIds";
 import type {
   AutomatonState,
   AutomatonTransition,
@@ -39,6 +40,7 @@ interface AutomatonGraphProps {
   ) => void;
 }
 
+/** Positioned `absolute inset-0` — the parent must be `relative` with a real size. */
 export interface AutomatonGraphHandle {
   /** Starts an edge drag from an existing node — wires up StateContextMenu's
    *  "Add Transition from here", which previously called nothing. */
@@ -73,7 +75,10 @@ export const AutomatonGraph = forwardRef<
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<Core | null>(null);
   const ehRef = useRef<EdgeHandlesInstance | null>(null);
-  const stateCounter = useRef(0);
+  // Latest states, for collision-free ids (a counter would restart at q0 after a
+  // reload and clash with persisted states).
+  const statesRef = useRef(states);
+  statesRef.current = states;
 
   // Colours come from the active theme (cytoscape can't read CSS variables).
   const { colors } = useActiveTheme();
@@ -129,7 +134,7 @@ export const AutomatonGraph = forwardRef<
     cy.on("tap", (evt) => {
       if (evt.target !== cy) return;
       if (cb.current.editMode !== "add-state") return;
-      const id = `q${stateCounter.current++}`;
+      const id = nextStateId(statesRef.current);
       cb.current.onAddState(id, evt.position);
     });
 

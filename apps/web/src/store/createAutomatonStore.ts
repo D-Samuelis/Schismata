@@ -30,7 +30,13 @@ export interface AutomatonStore {
   moveState: (id: string, position: { x: number; y: number }) => void;
   toggleAccept: (id: string) => void;
   renameState: (oldId: string, newId: string) => void;
-  addTransition: (source: string, target: string) => void;
+  /** Without `fields` the user is asked via prompt() (graph drag-to-connect); with
+   *  `fields` the transition is created exactly as given (table's "new transition" row). */
+  addTransition: (
+    source: string,
+    target: string,
+    fields?: { reads: string[]; writes?: string[]; moves?: TapeDirection[] },
+  ) => void;
   updateTransition: (id: string, patch: Partial<AutomatonTransition>) => void;
   deleteElement: (id: string) => void;
   loadGraph: (graph: {
@@ -107,9 +113,19 @@ export function createAutomatonStore(name: string, initialTapeCount: number) {
                 startState: s.startState === oldId ? newId : s.startState,
               })),
 
-            addTransition: (source, target) => {
+            addTransition: (source, target, fields) => {
               const { tapeCount, transitionCounter } = get();
               const id = `t${transitionCounter}`;
+              if (fields) {
+                set((s) => ({
+                  transitions: [
+                    ...s.transitions,
+                    { id, source, target, ...fields },
+                  ],
+                  transitionCounter: s.transitionCounter + 1,
+                }));
+                return;
+              }
               if (tapeCount === 0) {
                 const symbol = window.prompt("Transition symbol:", "a") ?? "a";
                 set((s) => ({

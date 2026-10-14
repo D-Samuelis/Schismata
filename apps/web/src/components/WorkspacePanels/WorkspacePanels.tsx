@@ -7,7 +7,7 @@ import { AutomatonGraph } from "../AutomatonGraph/AutomatonGraph";
 import { EditorToolbar } from "../EditorToolbar/EditorToolbar";
 import { FormalDefinition } from "../FormalDefinition/FormalDefinition";
 import { TransitionTable } from "../TransitionTable/TransitionTable";
-import { TapeView } from "../TapeView/TapeView";
+import { StatesTable } from "../StatesTable/StatesTable";
 import { TapeViewDemo } from "../TapeView/TapeViewDemo";
 
 const MODE_HINT: Record<EditMode, string> = {
@@ -48,15 +48,13 @@ function GraphPanel() {
 }
 
 function TapePanel() {
-  const { sim } = useWorkspace();
+  // Demo tape for now. To go back to the live tape:
+  //   import { TapeView } from "../TapeView/TapeView";
+  //   const { sim } = useWorkspace();
+  //   <TapeView tapes={sim.tapes} heads={sim.heads}
+  //             editable={sim.status === "idle"} onEditTape={sim.setTapeContent} />
   return (
     <PanelShell>
-      {/* <TapeView
-        tapes={sim.tapes}
-        heads={sim.heads}
-        editable={sim.status === "idle"}
-        onEditTape={sim.setTapeContent}
-      /> */}
       <TapeViewDemo />
     </PanelShell>
   );
@@ -77,6 +75,23 @@ function FormalDefinitionPanel() {
   );
 }
 
+function StatesPanel() {
+  const { sim } = useWorkspace();
+  return (
+    <PanelShell>
+      <StatesTable
+        states={sim.states}
+        startState={sim.startState}
+        onAddState={sim.addState}
+        onRename={sim.renameState}
+        onDelete={sim.deleteElement}
+        onSetStart={sim.setStartState}
+        onToggleAccept={sim.toggleAccept}
+      />
+    </PanelShell>
+  );
+}
+
 function TransitionTablePanel() {
   const { modeId, sim } = useWorkspace();
   return (
@@ -86,10 +101,9 @@ function TransitionTablePanel() {
         tapeCount={sim.tapeCount}
         states={sim.states}
         transitions={sim.transitions}
-        onRenameState={sim.renameState}
-        onDeleteState={sim.deleteElement}
         onUpdateTransition={sim.updateTransition}
         onDeleteTransition={sim.deleteElement}
+        onAddTransition={sim.addTransition}
       />
     </PanelShell>
   );
@@ -98,6 +112,7 @@ function TransitionTablePanel() {
 export const PANEL_COMPONENTS: Record<PanelId, React.FC> = {
   graph: GraphPanel,
   tape: TapePanel,
+  states: StatesPanel,
   formalDefinition: FormalDefinitionPanel,
   transitionTable: TransitionTablePanel,
 };
