@@ -68,10 +68,10 @@ export function buildMenus(): MenuDef[] {
         },
       ],
     },
-    {
+    /* {
       label: "Go",
       items: Object.keys(AUTOMATON_MODES).map((id) => cmd(`go.${id}`)),
-    },
+    }, */
     {
       label: "Run",
       items: [

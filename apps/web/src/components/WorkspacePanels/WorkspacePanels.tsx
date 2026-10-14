@@ -8,6 +8,7 @@ import { EditorToolbar } from "../EditorToolbar/EditorToolbar";
 import { FormalDefinition } from "../FormalDefinition/FormalDefinition";
 import { TransitionTable } from "../TransitionTable/TransitionTable";
 import { TapeView } from "../TapeView/TapeView";
+import { TapeViewDemo } from "../TapeView/TapeViewDemo";
 
 const MODE_HINT: Record<EditMode, string> = {
   select:
@@ -50,12 +51,13 @@ function TapePanel() {
   const { sim } = useWorkspace();
   return (
     <PanelShell>
-      <TapeView
+      {/* <TapeView
         tapes={sim.tapes}
         heads={sim.heads}
         editable={sim.status === "idle"}
         onEditTape={sim.setTapeContent}
-      />
+      /> */}
+      <TapeViewDemo />
     </PanelShell>
   );
 }

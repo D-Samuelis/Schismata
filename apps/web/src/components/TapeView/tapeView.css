@@ -1,0 +1,176 @@
+/* apps/web/src/components/TapeView/TapeView.css
+   Keyframes only; colours/layout live in the Tailwind classes of each component.
+   Durations are set inline from the step speed. */
+
+/* cell under the head gets rewritten: amber flash + little bounce */
+@keyframes tape-cell-write {
+    0% {
+        transform: scale(0.82);
+        background-color: rgb(251 191 36 / 0.65);
+    }
+
+    55% {
+        transform: scale(1.14);
+    }
+
+    100% {
+        transform: scale(1);
+        background-color: rgb(251 191 36 / 0);
+    }
+}
+
+/* the new symbol drops in */
+@keyframes tape-symbol-write {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.6);
+    }
+
+    100% {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* head reads: viewfinder corners snap inward like an autofocus */
+@keyframes tape-head-focus {
+    0% {
+        opacity: 0.3;
+        transform: scale(1.5);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* head writes: a beam sweeps down the cell (distance set via --tape-scan) */
+@keyframes tape-head-scan {
+    0% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    85% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(var(--tape-scan, 30px));
+    }
+}
+
+/* status LED blinks while reading */
+@keyframes tape-led-blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+}
+
+/* state label changes */
+@keyframes tape-badge-pop {
+    0% {
+        opacity: 0.4;
+        transform: scale(0.7);
+    }
+
+    60% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* direction hint next to the head while the tape slides */
+@keyframes tape-head-nudge-right {
+    0% {
+        opacity: 0;
+        transform: translateX(-6px);
+    }
+
+    40% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(8px);
+    }
+}
+
+@keyframes tape-head-nudge-left {
+    0% {
+        opacity: 0;
+        transform: translateX(6px);
+    }
+
+    40% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-8px);
+    }
+}
+
+.tape-cell-write {
+    animation: tape-cell-write ease-out;
+}
+
+.tape-symbol-write {
+    animation: tape-symbol-write ease-out;
+}
+
+.tape-head-focus {
+    animation: tape-head-focus ease-out;
+}
+
+.tape-head-scan {
+    animation: tape-head-scan linear forwards;
+}
+
+.tape-led-blink {
+    animation: tape-led-blink ease-in-out;
+}
+
+.tape-badge-pop {
+    animation: tape-badge-pop 260ms ease-out;
+}
+
+.tape-head-nudge-right {
+    animation: tape-head-nudge-right ease-out forwards;
+}
+
+.tape-head-nudge-left {
+    animation: tape-head-nudge-left ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .tape-cell-write,
+    .tape-symbol-write,
+    .tape-head-focus,
+    .tape-head-scan,
+    .tape-led-blink,
+    .tape-badge-pop,
+    .tape-head-nudge-right,
+    .tape-head-nudge-left {
+        animation: none;
+    }
+}

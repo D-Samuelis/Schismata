@@ -30,6 +30,7 @@ import { PANEL_COMPONENTS } from "../components/WorkspacePanels/WorkspacePanels"
 import { WorkspaceContext } from "../context/WorkspaceContext";
 import { useDfaStore, useNfaStore, useTmStore } from "../store/stores";
 import { useAutomatonTemporal } from "../hooks/useAutomatonTemporal";
+import { useSashDoubleClick } from "../hooks/useSashDoubleClick";
 import { useWorkspaceCommands } from "../commands/useWorkspaceCommands";
 import type { AutomatonStore } from "../store/createAutomatonStore";
 
@@ -53,7 +54,7 @@ export default function Workspace() {
   const nfa = useNfaStore(modeId === "nfa" ? activeSelector : inertSelector);
   const tm = useTmStore(modeId === "tm" ? activeSelector : inertSelector);
   const sim = modeId === "dfa" ? dfa : modeId === "nfa" ? nfa : tm;
-  console.log(sim)
+  console.log(sim);
   const activeStore =
     modeId === "dfa"
       ? useDfaStore
@@ -77,6 +78,9 @@ export default function Workspace() {
     defaultPanels(modeId),
   );
   const apiRef = useRef<DockviewApi | null>(null);
+
+  const dockHostRef = useRef<HTMLDivElement>(null);
+  useSashDoubleClick(dockHostRef, apiRef);
 
   // The run bar lives in AppLayout. Looking it up during render returns null on
   // the first pass (the parent's DOM isn't committed yet), so resolve it in an effect.
@@ -191,7 +195,7 @@ export default function Workspace() {
           </Collapse>
         )}
 
-        <div className="workspace-dockview">
+        <div className="workspace-dockview" ref={dockHostRef}>
           <DockviewReact
             className="workspace-dockview-inner"
             theme={schismataDockTheme}
